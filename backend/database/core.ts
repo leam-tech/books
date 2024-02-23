@@ -1,5 +1,8 @@
 import { getDbError, NotFoundError, ValueError } from 'fyo/utils/errors';
 import { knex, Knex } from 'knex';
+
+const Client_SQLite3 = require('knex/lib/dialects/sqlite3');
+
 import {
   Field,
   FieldTypeEnum,
@@ -45,6 +48,12 @@ import {
  * the `fieldValueMap`.
  */
 
+class Turso extends Client_SQLite3 {
+  _driver() {
+    return require('@libsql/sqlite3');
+  }
+}
+
 export default class DatabaseCore extends DatabaseBase {
   knex?: Knex;
   typeMap = sqliteTypeMap;
@@ -56,9 +65,10 @@ export default class DatabaseCore extends DatabaseBase {
     super();
     this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
-      client: 'better-sqlite3',
+      client: Turso,
       connection: {
-        filename: this.dbPath,
+        filename:
+          'libsql://demo-cloned-assemmarwan.turso.io?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MDg2NDg1MDksImlkIjoiMWZkYWIzZDgtZDFlMy0xMWVlLWI2MzMtZjY0MzI1NjFjMzE0In0.C6ZjkShzqsk5mYhRt08IiTjwfQuZrFhhjsFwQebMh8yeCLh5jTmSdldGb319OLgv5-KVLslLUJeVwZyh7VQiAQ',
       },
       useNullAsDefault: true,
       asyncStackTraces: process.env.NODE_ENV === 'development',

@@ -41,6 +41,10 @@ export async function sendError(errorLogObj: ErrorLog) {
     console.log('sendError', body);
   }
 
+  if (errorLogObj.name.toLowerCase().includes('databaseerror')) {
+    await fyo.db.connectToDatabase();
+  }
+
   await ipc.sendError(JSON.stringify(body));
 }
 
