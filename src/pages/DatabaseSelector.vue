@@ -195,6 +195,9 @@
             py-1.5
             w-28
             h-8
+            no-scrollbar
+            overflow-x-auto
+            whitespace-nowrap
           "
           :disabled="creatingDemo"
           @click="createDemo"
@@ -418,6 +421,7 @@ export default defineComponent({
       await this.setFiles();
       this.fyo.telemetry.log(Verb.Created, 'dummy-instance');
       this.creatingDemo = false;
+      this.$emit('file-selected', filePath);
     },
     async setFiles() {
       const dbList = await ipc.getDbList();

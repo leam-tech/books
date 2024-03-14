@@ -31,6 +31,19 @@ export function useKeys() {
   });
 
   const keydownListener = (e: KeyboardEvent) => {
+    const notMods = !(e.altKey || e.metaKey || e.ctrlKey);
+    if (e.target instanceof HTMLInputElement && notMods) {
+      return;
+    }
+
+    if (
+      e.target instanceof HTMLElement &&
+      e.target.contentEditable === 'true' &&
+      notMods
+    ) {
+      return;
+    }
+
     keys.alt = e.altKey;
     keys.ctrl = e.ctrlKey;
     keys.meta = e.metaKey;

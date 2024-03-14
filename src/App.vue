@@ -145,11 +145,11 @@ export default defineComponent({
       await this.searcher.initializeKeywords();
     },
     async setDesk(filePath: string): Promise<void> {
+      await setLanguageMap();
       this.activeScreen = Screen.Desk;
       await this.setDeskRoute();
       await fyo.telemetry.start(true);
       await ipc.checkForUpdates();
-      await setLanguageMap();
       this.dbPath = filePath;
       this.companyName = (await fyo.getValue(
         ModelNameEnum.AccountingSettings,
@@ -237,10 +237,10 @@ export default defineComponent({
 
       let route = '/get-started';
       if (hideGetStarted || onboardingComplete) {
-        route = '/';
+        route = localStorage.getItem('lastRoute') || '/';
       }
 
-      await routeTo(localStorage.getItem('lastRoute') || route);
+      await routeTo(route);
     },
     async showDbSelector(): Promise<void> {
       localStorage.clear();

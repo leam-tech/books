@@ -101,6 +101,20 @@ function getInventorySidebar(): SidebarRoot[] {
   ];
 }
 
+function getPOSSidebar() {
+  const isPOSEnabled = !!fyo.singles.InventorySettings?.enablePointOfSale;
+  if (!isPOSEnabled) {
+    return [];
+  }
+
+  return {
+    label: t`POS`,
+    name: 'pos',
+    route: '/pos',
+    icon: 'pos',
+  };
+}
+
 function getReportSidebar() {
   return {
     label: t`Reports`,
@@ -155,6 +169,12 @@ function getCompleteSidebar(): SidebarConfig {
       icon: 'sales',
       route: '/list/SalesInvoice',
       items: [
+        {
+          label: t`Sales Quotes`,
+          name: 'sales-quotes',
+          route: '/list/SalesQuote',
+          schemaName: 'SalesQuote',
+        },
         {
           label: t`Sales Invoices`,
           name: 'sales-invoices',
@@ -256,6 +276,7 @@ function getCompleteSidebar(): SidebarConfig {
     },
     getReportSidebar(),
     getInventorySidebar(),
+    getPOSSidebar(),
     getRegionalSidebar(),
     {
       label: t`Setup`,
@@ -269,7 +290,7 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/chart-of-accounts',
         },
         {
-          label: t`Taxes`,
+          label: t`Tax Templates`,
           name: 'taxes',
           route: '/list/Tax',
           schemaName: 'Tax',
@@ -283,6 +304,14 @@ function getCompleteSidebar(): SidebarConfig {
           label: t`Print Templates`,
           name: 'print-template',
           route: `/list/PrintTemplate/${t`Print Templates`}`,
+        },
+        {
+          label: t`Customize Form`,
+          name: 'customize-form',
+          // route: `/customize-form`,
+          route: `/list/CustomForm/${t`Customize Form`}`,
+          hidden: () =>
+            !fyo.singles.AccountingSettings?.enableFormCustomization,
         },
         {
           label: t`Settings`,

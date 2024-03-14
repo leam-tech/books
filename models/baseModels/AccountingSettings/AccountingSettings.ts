@@ -15,6 +15,8 @@ export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
   enableInventory?: boolean;
   enablePriceList?: boolean;
+  enableFormCustomization?: boolean;
+  enableInvoiceReturns?: boolean;
 
   static filters: FiltersMap = {
     writeOffAccount: () => ({
@@ -45,6 +47,9 @@ export class AccountingSettings extends Doc {
     },
     enableInventory: () => {
       return !!this.enableInventory;
+    },
+    enableInvoiceReturns: () => {
+      return !!this.enableInvoiceReturns;
     },
   };
 

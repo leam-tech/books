@@ -47,7 +47,10 @@ export abstract class InvoiceItem extends Doc {
   itemTaxedTotal?: Money;
 
   get isSales() {
-    return this.schemaName === 'SalesInvoiceItem';
+    return (
+      this.schemaName === 'SalesInvoiceItem' ||
+      this.schemaName === 'SalesQuoteItem'
+    );
   }
 
   get date() {
@@ -84,6 +87,10 @@ export abstract class InvoiceItem extends Doc {
 
   get isMultiCurrency() {
     return this.parentdoc?.isMultiCurrency ?? false;
+  }
+
+  get isReturn() {
+    return !!this.parentdoc?.isReturn;
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -210,6 +217,15 @@ export abstract class InvoiceItem extends Doc {
         const unitDoc = itemDoc.getLink('uom');
 
         let quantity: number = this.quantity ?? 1;
+
+        if (this.isReturn && quantity > 0) {
+          quantity *= -1;
+        }
+
+        if (!this.isReturn && quantity < 0) {
+          quantity *= -1;
+        }
+
         if (fieldname === 'transferQuantity') {
           quantity = this.transferQuantity! * this.unitConversionFactor!;
         }
@@ -225,6 +241,8 @@ export abstract class InvoiceItem extends Doc {
         'transferQuantity',
         'transferUnit',
         'unitConversionFactor',
+        'item',
+        'isReturn',
       ],
     },
     unitConversionFactor: {
@@ -478,23 +496,12 @@ export abstract class InvoiceItem extends Doc {
 
   static filters: FiltersMap = {
     item: (doc: Doc) => {
-      const itemList = doc.parentdoc!.items as Doc[];
-      const items = itemList.map((d) => d.item as string).filter(Boolean);
-
       let itemNotFor = 'Sales';
       if (doc.isSales) {
         itemNotFor = 'Purchases';
       }
 
-      const baseFilter = { for: ['not in', [itemNotFor]] };
-      if (items.length <= 0) {
-        return baseFilter;
-      }
-
-      return {
-        name: ['not in', items],
-        ...baseFilter,
-      };
+      return { for: ['not in', [itemNotFor]] };
     },
   };
 

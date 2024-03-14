@@ -140,6 +140,10 @@ If you want to contribute code then you can fork this repo, make changes and rai
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
 - [Frappe Books Blog](https://tech.frappebooks.com/): Sporadically updated dev blog regarding the development of this project.
 
+## Maintainers
+
+Frappe Books is currently being maintained by [Mildred Ki'Lya](https://github.com/mildred) and [Isaac-GC](https://github.com/Isaac-GC).
+
 ## Translation Contributors
 
 | Language           | Contributors                                                                                                                                                     |
@@ -153,7 +157,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Spanish            | [talmax1124](https://github.com/talmax1124), [delbertf](https://github.com/delbertf)                                                                             |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode), [4silvertooth](https://github.com/4silvertooth)                                                                 |
 | Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                                                                                                      |
-| Simplified Chinese | [wcxu21](https://github.com/wcxu21)                                                                                                                              |
+| Simplified Chinese | [wcxu21](https://github.com/wcxu21), [wolone](https://github.com/wolone)                                                                                         |
 | Swedish            | [papplo](https://github.com/papplo)                                                                                                                              |
 | Turkish            | Eyuq, [XTechnology-TR](https://github.com/XTechnology-TR)                                                                                                        |
 

@@ -87,6 +87,20 @@
       "section": "Features"
     },
     {
+      "fieldname": "enableInvoiceReturns",
+      "label": "Enable Invoice Returns",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
+      "fieldname": "enableFormCustomization",
+      "label": "Enable Form Customization",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Features"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",

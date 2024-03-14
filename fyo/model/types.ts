@@ -1,15 +1,17 @@
-import { Fyo } from 'fyo';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import type { Fyo } from 'fyo';
+import type { DocValue, DocValueMap } from 'fyo/core/types';
 import type SystemSettings from 'fyo/models/SystemSettings';
-import { FieldType, Schema, SelectOption } from 'schemas/types';
-import { QueryFilter } from 'utils/db/types';
-import { RouteLocationRaw, Router } from 'vue-router';
-import { Doc } from './doc';
+import type { FieldType, Schema, SelectOption } from 'schemas/types';
+import type { QueryFilter } from 'utils/db/types';
+import type { RouteLocationRaw, Router } from 'vue-router';
+import type { Doc } from './doc';
 import type { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import type { Defaults } from 'models/baseModels/Defaults/Defaults';
 import type { PrintSettings } from 'models/baseModels/PrintSettings/PrintSettings';
 import type { InventorySettings } from 'models/inventory/InventorySettings';
-import { Misc } from 'models/baseModels/Misc';
+import type { Misc } from 'models/baseModels/Misc';
+import type { POSSettings } from 'models/inventory/Point of Sale/POSSettings';
+import type { POSShift } from 'models/inventory/Point of Sale/POSShift';
 
 /**
  * The functions below are used for dynamic evaluation
@@ -54,6 +56,8 @@ export interface SinglesMap {
   SystemSettings?: SystemSettings;
   AccountingSettings?: AccountingSettings;
   InventorySettings?: InventorySettings;
+  POSSettings?: POSSettings;
+  POSShift?: POSShift;
   PrintSettings?: PrintSettings;
   Defaults?: Defaults;
   Misc?: Misc;

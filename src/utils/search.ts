@@ -195,7 +195,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.PrintTemplate,
   ];
 
-  if (fyo.doc.singles.AccountingSettings?.enableInventory) {
+  if (fyo.doc.singles.AccountingSecuttings?.enableInventory) {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
@@ -215,6 +215,10 @@ function getListViewList(fyo: Fyo): SearchItem[] {
 
   if (fyo.singles.InventorySettings?.enableSerialNumber) {
     schemaNames.push(ModelNameEnum.SerialNumber);
+  }
+
+  if (fyo.doc.singles.AccountingSettings?.enableFormCustomization) {
+    schemaNames.push(ModelNameEnum.CustomForm);
   }
 
   if (fyo.store.isDevelopment) {
@@ -503,9 +507,11 @@ export class Search {
     for (const si of this._intermediate.suggestions) {
       const label = si.label;
       const groupLabel =
-        (si as DocSearchItem).schemaLabel || this._groupLabelMap![si.group];
+        (si as DocSearchItem).schemaLabel || this._groupLabelMap?.[si.group];
       const more = (si as DocSearchItem).more ?? [];
-      const values = [label, more, groupLabel].flat();
+      const values = [label, more, groupLabel]
+        .flat()
+        .filter(Boolean) as string[];
 
       const { isMatch, distance } = this._getMatchAndDistance(input, values);
 

@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
+export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid' | 'Return' | 'ReturnIssued';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -27,6 +27,8 @@ export enum ModelNameEnum {
   PurchaseInvoiceItem = 'PurchaseInvoiceItem',
   SalesInvoice = 'SalesInvoice',
   SalesInvoiceItem = 'SalesInvoiceItem',
+  SalesQuote = 'SalesQuote',
+  SalesQuoteItem = 'SalesQuoteItem',
   SerialNumber = 'SerialNumber',
   SetupWizard = 'SetupWizard',
   Tax = 'Tax',
@@ -44,6 +46,10 @@ export enum ModelNameEnum {
   PurchaseReceipt = 'PurchaseReceipt',
   PurchaseReceiptItem = 'PurchaseReceiptItem',
   Location = 'Location',
+  CustomForm = 'CustomForm',
+  CustomField = 'CustomField',
+  POSSettings = 'POSSettings',
+  POSShift = 'POSShift'
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
