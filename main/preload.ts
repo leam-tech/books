@@ -8,7 +8,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import type { ConfigMap } from 'fyo/core/types';
 import config from 'utils/config';
 import type { DatabaseMethod } from 'utils/db/types';
-import type { BackendResponse } from 'utils/ipc/types';
+import { BackendResponse, LoginResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 import type {
   ConfigFilesWithModified,
@@ -150,6 +150,17 @@ const ipc = {
 
   registerConsoleLogListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, listener);
+  },
+
+  auth: {
+    async login(email: string, password: string, slug: string) {
+      return (await ipcRenderer.invoke(
+        IPC_ACTIONS.LOGIN,
+        email,
+        password,
+        slug
+      )) as LoginResponse;
+    },
   },
 
   db: {

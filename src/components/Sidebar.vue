@@ -127,7 +127,7 @@
         @click="$emit('change-db-file')"
       >
         <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
-        <p>{{ t`Change DB` }}</p>
+        <p>{{ t`Logout` }}</p>
       </button>
 
       <button

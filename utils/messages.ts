@@ -32,6 +32,8 @@ export enum IPC_ACTIONS {
   DB_CALL = 'db-call',
   DB_BESPOKE = 'db-bespoke',
   DB_SCHEMA = 'db-schema',
+  // frappe books server url
+  LOGIN = 'login',
 }
 
 // ipcMain.send(...)

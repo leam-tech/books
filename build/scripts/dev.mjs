@@ -4,11 +4,28 @@ import { $ } from 'execa';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getMainProcessCommonConfig } from './helpers.mjs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 process.env['NODE_ENV'] = 'development';
 process.env['VITE_HOST'] = '127.0.0.1';
 process.env['VITE_PORT'] = 6969;
+
+/**
+ * check for FRAPPE_BOOKS_SERVER_URL env variable using yargs
+ */
+const rawArgs = yargs(hideBin(process.argv)).option('frappe-books-server-url', {
+  type: 'string',
+  description: 'Frappe Books server url',
+});
+
+const argv = rawArgs.argv;
+
+if (argv['frappe-books-server-url']) {
+  process.env['FRAPPE_BOOKS_SERVER_URL'] = argv['frappe-books-server-url'];
+}
+
 
 /**
  * This script does several things:
@@ -127,7 +144,7 @@ function runElectron() {
     root,
     'dist_electron',
     'dev',
-    'main.js'
+    'main.js',
   )}`;
 
   electronProcess.on('close', async () => {

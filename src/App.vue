@@ -5,28 +5,33 @@
     :dir="languageDirection"
     :language="language"
   >
-    <WindowsTitleBar
-      v-if="platform === 'Windows'"
-      :db-path="dbPath"
-      :company-name="companyName"
-    />
+    <!--    <WindowsTitleBar-->
+    <!--      v-if="platform === 'Windows'"-->
+    <!--      :db-path="dbPath"-->
+    <!--      :company-name="companyName"-->
+    <!--    />-->
     <!-- Main Contents -->
     <Desk
       v-if="activeScreen === 'Desk'"
       class="flex-1"
       @change-db-file="showDbSelector"
     />
-    <DatabaseSelector
-      v-if="activeScreen === 'DatabaseSelector'"
-      ref="databaseSelector"
-      @new-database="newDatabase"
-      @file-selected="fileSelected"
+    <!--    <DatabaseSelector-->
+    <!--      v-if="activeScreen === 'DatabaseSelector'"-->
+    <!--      ref="databaseSelector"-->
+    <!--      @new-database="newDatabase"-->
+    <!--      @file-selected="fileSelected"-->
+    <!--    />-->
+    <Login
+      v-if="activeScreen === 'Login'"
+      ref="loginRef"
+      @login="loginRequest"
     />
-    <SetupWizard
-      v-if="activeScreen === 'SetupWizard'"
-      @setup-complete="setupComplete"
-      @setup-canceled="showDbSelector"
-    />
+    <!--    <SetupWizard-->
+    <!--      v-if="activeScreen === 'SetupWizard'"-->
+    <!--      @setup-complete="setupComplete"-->
+    <!--      @setup-canceled="showDbSelector"-->
+    <!--    />-->
 
     <!-- Render target for toasts -->
     <div
@@ -42,16 +47,12 @@ import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
 import { isValidUrl } from 'utils/misc';
 import { defineComponent, provide, ref, Ref } from 'vue';
-import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
 import Desk from './pages/Desk.vue';
-import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
-import setupInstance from './setup/setupInstance';
-import { SetupWizardOptions } from './setup/types';
 import './styles/index.css';
-import { connectToDatabase, dbErrorActionSymbols } from './utils/db';
+import { connectToDatabase } from './utils/db';
 import { initializeInstance } from './utils/initialization';
 import * as injectionKeys from './utils/injectionKeys';
 import { showDialog } from './utils/interactive';
@@ -62,20 +63,20 @@ import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
+import Login from 'src/pages/Login.vue';
 
 enum Screen {
   Desk = 'Desk',
-  DatabaseSelector = 'DatabaseSelector',
-  SetupWizard = 'SetupWizard',
+  // DatabaseSelector = 'DatabaseSelector',
+  // SetupWizard = 'SetupWizard',
+  Login = 'Login',
 }
 
 export default defineComponent({
   name: 'App',
   components: {
+    Login,
     Desk,
-    SetupWizard,
-    DatabaseSelector,
-    WindowsTitleBar,
   },
   setup() {
     const keys = useKeys();
@@ -94,12 +95,15 @@ export default defineComponent({
       null
     );
 
+    const loginRef = ref<InstanceType<typeof Login> | null>(null);
+
     return {
       keys,
       searcher,
       shortcuts,
       languageDirection,
       databaseSelector,
+      loginRef,
     };
   },
   data() {
@@ -127,6 +131,29 @@ export default defineComponent({
     await this.setInitialScreen();
   },
   methods: {
+    async loginRequest({
+      entitySlug,
+      email,
+      password,
+    }: {
+      entitySlug: string;
+      email: string;
+      password: string;
+    }): Promise<void> {
+      try {
+        const response = await ipc.auth.login(email, password, entitySlug);
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+        await this.fileSelected(response.data?.connectionString || '');
+      } catch (error) {
+        await handleErrorWithDialog(error, undefined, true, true);
+      } finally {
+        if (this.loginRef) {
+          this.loginRef.logingIn = false;
+        }
+      }
+    },
     async setInitialScreen(): Promise<void> {
       const lastSelectedFilePath = fyo.config.get('lastSelectedFilePath', null);
 
@@ -134,7 +161,7 @@ export default defineComponent({
         typeof lastSelectedFilePath !== 'string' ||
         !lastSelectedFilePath.length
       ) {
-        this.activeScreen = Screen.DatabaseSelector;
+        this.activeScreen = Screen.Login;
         return;
       }
 
@@ -158,9 +185,9 @@ export default defineComponent({
       await this.setSearcher();
       updateConfigFiles(fyo);
     },
-    newDatabase() {
-      this.activeScreen = Screen.SetupWizard;
-    },
+    // newDatabase() {
+    //   this.activeScreen = Screen.SetupWizard;
+    // },
     async fileSelected(filePath: string): Promise<void> {
       fyo.config.set('lastSelectedFilePath', filePath);
       if (
@@ -178,59 +205,63 @@ export default defineComponent({
         fyo.config.set('lastSelectedFilePath', null);
         return;
       }
-
-      try {
-        await this.showSetupWizardOrDesk(filePath);
-      } catch (error) {
-        await handleErrorWithDialog(error, undefined, true, true);
-        await this.showDbSelector();
-      }
-    },
-    async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
-      const companyName = setupWizardOptions.companyName;
-      const filePath = await ipc.getDbDefaultPath(companyName);
-      await setupInstance(filePath, setupWizardOptions, fyo);
-      fyo.config.set('lastSelectedFilePath', filePath);
-      await this.setDesk(filePath);
-    },
-    async showSetupWizardOrDesk(filePath: string): Promise<void> {
-      const { countryCode, error, actionSymbol } = await connectToDatabase(
-        this.fyo,
-        filePath
-      );
-
-      if (!countryCode && error && actionSymbol) {
-        return await this.handleConnectionFailed(error, actionSymbol);
-      }
-
-      const setupComplete = await fyo.getValue(
-        ModelNameEnum.AccountingSettings,
-        'setupComplete'
-      );
-
-      if (!setupComplete) {
-        this.activeScreen = Screen.SetupWizard;
-        return;
-      }
-
+      const { countryCode } = await connectToDatabase(this.fyo, filePath);
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
       await this.setDesk(filePath);
+
+      // try {
+      //   await this.showSetupWizardOrDesk(filePath);
+      // } catch (error) {
+      //   await handleErrorWithDialog(error, undefined, true, true);
+      //   await this.showDbSelector();
+      // }
     },
-    async handleConnectionFailed(error: Error, actionSymbol: symbol) {
-      await this.showDbSelector();
-
-      if (actionSymbol === dbErrorActionSymbols.CancelSelection) {
-        return;
-      }
-
-      if (actionSymbol === dbErrorActionSymbols.SelectFile) {
-        await this.databaseSelector?.existingDatabase();
-        return;
-      }
-
-      throw error;
-    },
+    // async setupComplete(setupWizardOptions: SetupWizardOptions): Promise<void> {
+    //   const companyName = setupWizardOptions.companyName;
+    //   const filePath = await ipc.getDbDefaultPath(companyName);
+    //   await setupInstance(filePath, setupWizardOptions, fyo);
+    //   fyo.config.set('lastSelectedFilePath', filePath);
+    //   await this.setDesk(filePath);
+    // },
+    // async showSetupWizardOrDesk(filePath: string): Promise<void> {
+    //   const { countryCode, error, actionSymbol } = await connectToDatabase(
+    //     this.fyo,
+    //     filePath
+    //   );
+    //
+    //   if (!countryCode && error && actionSymbol) {
+    //     return await this.handleConnectionFailed(error, actionSymbol);
+    //   }
+    //
+    //   const setupComplete = await fyo.getValue(
+    //     ModelNameEnum.AccountingSettings,
+    //     'setupComplete'
+    //   );
+    //
+    //   if (!setupComplete) {
+    //     this.activeScreen = Screen.SetupWizard;
+    //     return;
+    //   }
+    //
+    //   await initializeInstance(filePath, false, countryCode, fyo);
+    //   await updatePrintTemplates(fyo);
+    //   await this.setDesk(filePath);
+    // },
+    // async handleConnectionFailed(error: Error, actionSymbol: symbol) {
+    //   await this.showDbSelector();
+    //
+    //   if (actionSymbol === dbErrorActionSymbols.CancelSelection) {
+    //     return;
+    //   }
+    //
+    //   if (actionSymbol === dbErrorActionSymbols.SelectFile) {
+    //     await this.databaseSelector?.existingDatabase();
+    //     return;
+    //   }
+    //
+    //   throw error;
+    // },
     async setDeskRoute(): Promise<void> {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
@@ -247,7 +278,7 @@ export default defineComponent({
       fyo.config.set('lastSelectedFilePath', null);
       fyo.telemetry.stop();
       await fyo.purgeCache();
-      this.activeScreen = Screen.DatabaseSelector;
+      this.activeScreen = Screen.Login;
       this.dbPath = '';
       this.searcher = null;
       this.companyName = '';

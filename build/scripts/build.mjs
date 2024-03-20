@@ -25,11 +25,19 @@ const rawArgs = yargs(hideBin(process.argv))
   .option('nopackage', {
     type: 'boolean',
     description: 'Only build the source files, electron-builder will not run',
+  })
+  .option('frappe-books-server-url', {
+    type: 'string',
+    description: 'Frappe Books server url',
   });
 
 const argv = rawArgs.argv;
 if (argv.nosign) {
   process.env['CSC_IDENTITY_AUTO_DISCOVERY'] = false;
+}
+
+if (argv['frappe-books-server-url']) {
+  process.env['FRAPPE_BOOKS_SERVER_URL'] = argv['frappe-books-server-url'];
 }
 
 updatePaths();
@@ -150,7 +158,7 @@ async function packageApp() {
     .command(['build', '*'], 'Build', configureBuildCommand)
     .parse();
 
-  for (const opt of ['nosign', 'nopackage']) {
+  for (const opt of ['nosign', 'nopackage', 'frappe-books-server-url', 'frappeBooksServerUrl']) {
     delete builderArgs[opt];
   }
 

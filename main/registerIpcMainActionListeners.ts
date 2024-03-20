@@ -28,6 +28,7 @@ import {
   setAndGetCleanedConfigFiles,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import fetch from 'node-fetch';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -262,4 +263,19 @@ export default function registerIpcMainActionListeners(main: Main) {
       return databaseManager.getSchemaMap();
     });
   });
+  ipcMain.handle(
+    IPC_ACTIONS.LOGIN,
+    async (_, email: string, password: string, slug: string) => {
+      const url = process.env['FRAPPE_BOOKS_SERVER_URL']!;
+      const authPath = '/auth/login';
+      const r = await fetch(`${url}${authPath}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, slug }),
+      });
+      return r.json();
+    }
+  );
 }
