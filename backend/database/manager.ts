@@ -12,6 +12,7 @@ import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
 import { BespokeFunction, Patch, RawCustomField } from './types';
+import { isValidUrl } from 'utils/misc';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
@@ -77,7 +78,9 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
     const hasPatches = !!patches.pre.length || !!patches.post.length;
     if (hasPatches) {
-      await this.#createBackup();
+      if (!isValidUrl(this.db?.dbPath || '')) {
+        await this.#createBackup();
+      }
     }
 
     await runPatches(patches.pre, this, version);
@@ -87,7 +90,9 @@ export class DatabaseManager extends DatabaseDemuxBase {
           return;
         }
 
-        await this.#createBackup();
+        if (!isValidUrl(this.db?.dbPath || '')) {
+          await this.#createBackup();
+        }
       },
     });
     await runPatches(patches.post, this, version);
