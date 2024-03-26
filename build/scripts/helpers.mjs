@@ -8,7 +8,7 @@ import path from 'path';
  * @param {string} root
  * @returns {import('esbuild').BuildOptions}
  */
-export function getMainProcessCommonConfig(root) {
+export function getMainProcessCommonConfig(root, definitions) {
   return {
     entryPoints: [
       path.join(root, 'main.ts'),
@@ -22,6 +22,9 @@ export function getMainProcessCommonConfig(root) {
     external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
     plugins: [excludeVendorFromSourceMap],
     write: true,
+    define: {
+      ...(definitions || {}),
+    },
   };
 }
 

@@ -9,13 +9,14 @@ import { getMainProcessCommonConfig } from './helpers.mjs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import frappeBooksConfig from '../../electron-builder-config.mjs';
+import { getEnvDefinitions } from './env-resolver.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..', '..');
 const buildDirPath = path.join(root, 'dist_electron', 'build');
 const packageDirPath = path.join(root, 'dist_electron', 'bundled');
 const mainFileName = 'main.js';
-const commonConfig = getMainProcessCommonConfig(root);
+const commonConfig = getMainProcessCommonConfig(root, getEnvDefinitions(root));
 
 const rawArgs = yargs(hideBin(process.argv))
   .option('nosign', {
@@ -25,19 +26,11 @@ const rawArgs = yargs(hideBin(process.argv))
   .option('nopackage', {
     type: 'boolean',
     description: 'Only build the source files, electron-builder will not run',
-  })
-  .option('frappe-books-server-url', {
-    type: 'string',
-    description: 'Frappe Books server url',
   });
 
 const argv = rawArgs.argv;
 if (argv.nosign) {
   process.env['CSC_IDENTITY_AUTO_DISCOVERY'] = false;
-}
-
-if (argv['frappe-books-server-url']) {
-  process.env['FRAPPE_BOOKS_SERVER_URL'] = argv['frappe-books-server-url'];
 }
 
 updatePaths();
