@@ -267,11 +267,11 @@ export default function registerIpcMainActionListeners(main: Main) {
     IPC_ACTIONS.LOGIN,
     async (_, email: string, password: string, slug: string) => {
       const url = __FRAPPE_BOOKS_SERVER_URL__;
-      const authPath = '/auth/login';
-      const r = await fetch(`${url}${authPath}`, {
+      const r = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${__FRAPPE_BOOKS_SERVER_TOKEN__}`,
         },
         body: JSON.stringify({ email, password, slug }),
       });

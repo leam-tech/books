@@ -22,19 +22,19 @@
           <input
             v-model="entitySlug"
             type="text"
-            placeholder="Slug"
+            :placeholder="t`Slug`"
             class="border rounded-md p-2"
           />
           <input
             v-model="email"
             type="email"
-            placeholder="Email"
+            :placeholder="t`Email`"
             class="border rounded-md p-2"
           />
           <input
             v-model="password"
             type="password"
-            placeholder="Password"
+            :placeholder="t`Password`"
             class="border rounded-md p-2"
           />
           <Button

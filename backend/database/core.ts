@@ -26,8 +26,9 @@ import {
   UpdateSinglesConfig,
 } from './types';
 
-import { isValidUrl } from 'utils/misc';
-import SQLiteServerClient from './KnexRemoteSQLiteClient.mjs';
+import { isValidLibsqlUrl, isValidUrl } from 'utils/misc';
+import Client_Libsql from '@libsql/knex-libsql';
+import RemoteSqlClient from './KnexRemoteSQLiteClient.mjs';
 
 /**
  * # DatabaseCore
@@ -60,7 +61,11 @@ export default class DatabaseCore extends DatabaseBase {
     this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
       // @ts-ignore
-      client: isValidUrl(dbPath ?? '') ? SQLiteServerClient : 'better-sqlite3',
+      client: isValidLibsqlUrl(this.dbPath)
+        ? Client_Libsql
+        : isValidUrl(this.dbPath)
+        ? RemoteSqlClient
+        : 'better-sqlite3',
       connection: {
         filename: this.dbPath,
       },

@@ -5,11 +5,13 @@
     :dir="languageDirection"
     :language="language"
   >
-    <!--    <WindowsTitleBar-->
-    <!--      v-if="platform === 'Windows'"-->
-    <!--      :db-path="dbPath"-->
-    <!--      :company-name="companyName"-->
-    <!--    />-->
+    <WindowsTitleBar
+      v-if="platform === 'Windows'"
+      :db-path="
+        isValidLibsqlUrl(dbPath) || isValidUrl(dbPath) ? 'Remote' : dbPath
+      "
+      :company-name="companyName"
+    />
     <!-- Main Contents -->
     <Desk
       v-if="activeScreen === 'Desk'"
@@ -45,7 +47,7 @@
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
-import { isValidUrl } from 'utils/misc';
+import { isValidLibsqlUrl, isValidUrl } from 'utils/misc';
 import { defineComponent, provide, ref, Ref } from 'vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo } from './initFyo';
@@ -64,6 +66,7 @@ import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
 import Login from 'src/pages/Login.vue';
+import WindowsTitleBar from './components/WindowsTitleBar.vue';
 
 enum Screen {
   Desk = 'Desk',
@@ -77,6 +80,7 @@ export default defineComponent({
   components: {
     Login,
     Desk,
+    WindowsTitleBar,
   },
   setup() {
     const keys = useKeys();
@@ -189,9 +193,9 @@ export default defineComponent({
     //   this.activeScreen = Screen.SetupWizard;
     // },
     async fileSelected(filePath: string): Promise<void> {
-      fyo.config.set('lastSelectedFilePath', filePath);
       if (
         !isValidUrl(filePath) &&
+        !isValidLibsqlUrl(filePath) &&
         filePath !== ':memory:' &&
         !(await ipc.checkDbAccess(filePath))
       ) {
@@ -205,6 +209,8 @@ export default defineComponent({
         fyo.config.set('lastSelectedFilePath', null);
         return;
       }
+      fyo.config.set('lastSelectedFilePath', filePath);
+
       const { countryCode } = await connectToDatabase(this.fyo, filePath);
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
@@ -283,6 +289,8 @@ export default defineComponent({
       this.searcher = null;
       this.companyName = '';
     },
+    isValidLibsqlUrl,
+    isValidUrl,
   },
 });
 

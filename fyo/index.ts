@@ -47,6 +47,8 @@ export class Fyo {
   telemetry: TelemetryManager;
   config: Config;
 
+  intervalToken?: number;
+
   constructor(conf: FyoConfig = {}) {
     this.isTest = conf.isTest ?? false;
     this.isElectron = conf.isElectron ?? true;
@@ -115,6 +117,23 @@ export class Fyo {
     this.doc.registerModels(models, regionalModels);
     await this.doc.getDoc('SystemSettings');
     this._initialized = true;
+    this.#ping();
+  }
+
+  // Set interval to keep pinging the DB so that it doesn't close
+  #ping() {
+    //@ts-expect-error - setInterval returns a number
+    this.intervalToken = setInterval(async () => {
+      try {
+        await this.db.getSingleValues({
+          fieldname: 'instanceId',
+          parent: 'SystemSettings',
+        });
+      } catch (e) {
+        console.log('DB ping failed, reconnecting...');
+        await this.db.connectToDatabase(this.db.dbPath!);
+      }
+    }, 1000);
   }
 
   async #initializeModules() {
@@ -221,6 +240,10 @@ export class Fyo {
     this.temp = {};
     await this.db.purgeCache();
     this.doc.purgeCache();
+    if (this.intervalToken !== undefined) {
+      clearInterval(this.intervalToken);
+      this.intervalToken = undefined;
+    }
   }
 
   store = {

@@ -6,5 +6,8 @@ export const getEnvDefinitions = (root) => {
     __FRAPPE_BOOKS_SERVER_URL__: JSON.stringify(
       envs['VITE_FRAPPE_BOOKS_SERVER_URL']
     ),
+    __FRAPPE_BOOKS_SERVER_TOKEN__: JSON.stringify(
+      envs['VITE_FRAPPE_BOOKS_SERVER_TOKEN']
+    ),
   };
 };

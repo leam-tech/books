@@ -64,3 +64,9 @@ export function isValidUrl(string: string) {
     /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
   return urlPattern.test(string);
 }
+
+export function isValidLibsqlUrl(string: string) {
+  const urlPattern =
+    /(?:libsql):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+  return urlPattern.test(string);
+}

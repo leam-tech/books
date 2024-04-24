@@ -1,6 +1,6 @@
 {
   "name": "frappe-books",
-  "version": "0.21.2",
+  "version": "0.22.0",
   "description": "Simple book-keeping app for everyone",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@codemirror/autocomplete": "^6.4.2",
     "@codemirror/lang-vue": "^0.1.1",
+    "@libsql/knex-libsql": "^0.1.0",
     "@popperjs/core": "^2.10.2",
     "better-sqlite3": "^9.2.2",
     "codemirror": "^6.0.1",
