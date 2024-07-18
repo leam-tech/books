@@ -208,9 +208,18 @@ export default defineComponent({
       if (fyo.db.fieldMap[this.schemaName]['date']) {
         orderBy.unshift('date');
       }
-
+      let fields = ['*'];
+      if (this.schemaName === 'PurchaseInvoice') {
+        fields = [
+          'name',
+          'party',
+          'date',
+          'baseGrandTotal',
+          'outstandingAmount',
+        ];
+      }
       const tableData = await fyo.db.getAll(this.schemaName, {
-        fields: ['*'],
+        fields,
         filters: filters as QueryFilter,
         orderBy,
       });
