@@ -132,6 +132,7 @@ export default defineComponent({
     },
   },
   async mounted() {
+    await this.showDbSelector();
     await this.setInitialScreen();
   },
   methods: {
