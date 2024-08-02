@@ -218,6 +218,9 @@ export default defineComponent({
           'outstandingAmount',
         ];
       }
+      if (this.schemaName === 'Payment') {
+        fields = ['name', 'party', 'date', 'amount'];
+      }
       const tableData = await fyo.db.getAll(this.schemaName, {
         fields,
         filters: filters as QueryFilter,

@@ -113,7 +113,7 @@ export function translateSchema(
     return;
   }
 
-  for (const key of Object.keys(map)) {
+  for (const key of Object.keys(map || {})) {
     const value = map[key];
     if (
       typeof value === 'string' &&
